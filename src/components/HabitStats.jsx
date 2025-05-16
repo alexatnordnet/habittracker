@@ -268,13 +268,13 @@ export default function HabitStats({ habit, view, onToggle }) {
               disabled={view === 'year' || (view === 'month' && !stat.isCurrentMonth) || stat.isFutureDate}
               className={`
                 flex items-center justify-center
-                rounded text-center transition-colors 
+                rounded text-center transform transition-all duration-200
                 ${view === 'day' ? 'h-36 w-36 mx-auto text-lg' : view === 'week' ? 'h-20 w-11' : ''}
-                ${stat.completed ? 'bg-green-500 text-white' : 
+                ${stat.completed ? 'bg-teal-600 text-white scale-100 hover:bg-teal-700' : 
                   (view === 'month' && !stat.isCurrentMonth) ? 'bg-gray-200 text-gray-400' : 
                   (view === 'year' && stat.isFutureMonth) ? 'bg-gray-200 text-gray-400' : 
                   stat.isFutureDate ? 'bg-gray-100 text-gray-300 cursor-not-allowed' :
-                  'border border-dotted hover:bg-gray-100'}
+                  'border border-dotted hover:bg-gray-100 hover:scale-105 active:scale-95'}
                 ${view === 'year' ? 'cursor-default' : ''}
                 ${stat.isToday ? 'ring-1 ring-gray-400' : ''}
               `}
