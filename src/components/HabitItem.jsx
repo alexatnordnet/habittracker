@@ -5,8 +5,8 @@ export default function HabitItem({ habit, onToggle, onDelete, currentView }) {
   const isCompleted = habit.completions?.[today];
   
   return (
-    <div className="flex flex-col p-3 border-b">
-      <div className="flex items-center justify-between">
+    <div className="p-4 border-b">
+      <div className="flex items-center justify-between mb-2">
         <div className="flex items-center">
           <button
             onClick={() => onToggle(habit.id)}
@@ -16,18 +16,18 @@ export default function HabitItem({ habit, onToggle, onDelete, currentView }) {
           >
             {isCompleted && <span className="text-white text-xs">✓</span>}
           </button>
-          <span>{habit.name}</span>
+          <span className="font-medium">{habit.name}</span>
         </div>
         
         <button 
           onClick={() => onDelete(habit.id)}
-          className="text-red-500 hover:text-red-700"
+          className="text-red-500 hover:text-red-700 text-lg"
         >
           ×
         </button>
       </div>
       
-      {/* Show stats based on current view */}
+      {/* Calendar-style stats */}
       <HabitStats habit={habit} view={currentView} onToggle={onToggle} />
     </div>
   );
