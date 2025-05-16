@@ -8,17 +8,13 @@ function App() {
   const [habits, setHabits] = useLocalStorage('habits', [])
   const [currentView, setCurrentView] = useState('week')
   
-  // Normalize date to midnight in local timezone
-  const normalizeDate = (date) => {
-    const normalized = new Date(date);
-    normalized.setHours(0, 0, 0, 0);
-    return normalized;
-  };
-  
-  // Get ISO date string (YYYY-MM-DD) for consistent date representation
-  const getISODateString = (date) => {
-    const normalized = normalizeDate(date);
-    return normalized.toISOString().split('T')[0];
+  // Get local date string (YYYY-MM-DD) for consistent date representation
+  const getLocalDateString = (date) => {
+    const d = new Date(date);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   };
   
   // Add a new habit
@@ -34,9 +30,8 @@ function App() {
   
   // Toggle completion status for a specific date
   const toggleHabit = (id, date = null) => {
-    // Ensure consistent date string format
-    const dateObj = date ? new Date(date) : new Date();
-    const dateStr = getISODateString(dateObj);
+    // If date is provided directly use it, otherwise use today's date
+    const dateStr = date || getLocalDateString(new Date());
     
     setHabits(habits.map(habit => {
       if (habit.id === id) {

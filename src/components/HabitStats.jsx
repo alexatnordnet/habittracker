@@ -7,17 +7,13 @@ export default function HabitStats({ habit, view, onToggle }) {
     setStats(generateStats(habit, view));
   }, [habit, view]);
   
-  // Normalize date to midnight in local timezone
-  const normalizeDate = (date) => {
-    const normalized = new Date(date);
-    normalized.setHours(0, 0, 0, 0);
-    return normalized;
-  };
-  
-  // Get ISO date string (YYYY-MM-DD) for consistent date representation
-  const getISODateString = (date) => {
-    const normalized = normalizeDate(date);
-    return normalized.toISOString().split('T')[0];
+  // Get local date string (YYYY-MM-DD) for consistent date representation
+  const getLocalDateString = (date) => {
+    const d = new Date(date);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   };
   
   // Get dates for the current view
@@ -30,20 +26,19 @@ export default function HabitStats({ habit, view, onToggle }) {
       }
       
       // Create consistent date string format for all views
-      const normalizedDate = normalizeDate(date);
-      const dateStr = getISODateString(normalizedDate);
+      const dateStr = getLocalDateString(date);
       
       const completed = view === 'year' 
-        ? isMonthCompleted(habit, normalizedDate.getFullYear(), normalizedDate.getMonth())
+        ? isMonthCompleted(habit, date.getFullYear(), date.getMonth())
         : habit.completions?.[dateStr] || false;
       
       return {
         date: dateStr,
-        displayDate: formatDisplayDate(normalizedDate, view),
+        displayDate: formatDisplayDate(date, view),
         completed,
-        isCurrentMonth: isCurrentMonth(normalizedDate),
-        isFutureMonth: isFutureMonth(normalizedDate),
-        isToday: isToday(normalizedDate)
+        isCurrentMonth: isCurrentMonth(date),
+        isFutureMonth: isFutureMonth(date),
+        isToday: isToday(date)
       };
     });
   };
@@ -65,7 +60,7 @@ export default function HabitStats({ habit, view, onToggle }) {
     // Check if all days in the month are completed
     for (let day = 1; day <= lastDay; day++) {
       const date = new Date(year, month, day);
-      const dateStr = getISODateString(date);
+      const dateStr = getLocalDateString(date);
       if (!habit.completions?.[dateStr]) {
         return false;
       }
@@ -76,7 +71,8 @@ export default function HabitStats({ habit, view, onToggle }) {
   
   // Generate array of dates based on the current view
   const getDatesForView = (view) => {
-    const today = normalizeDate(new Date());
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
     const dates = [];
     
     if (view === 'week') {
@@ -87,7 +83,7 @@ export default function HabitStats({ habit, view, onToggle }) {
       for (let i = 0; i < 7; i++) { // 7 days in a week
         const date = new Date(today);
         date.setDate(today.getDate() - daysFromMonday + i);
-        dates.push(normalizeDate(date));
+        dates.push(date);
       }
       
       // Add placeholder dates for week view to center the row
@@ -112,9 +108,11 @@ export default function HabitStats({ habit, view, onToggle }) {
       const month = today.getMonth();
       
       // First day of current month
-      const firstDay = normalizeDate(new Date(year, month, 1));
+      const firstDay = new Date(year, month, 1);
+      firstDay.setHours(0, 0, 0, 0);
       // Last day of current month
-      const lastDay = normalizeDate(new Date(year, month + 1, 0));
+      const lastDay = new Date(year, month + 1, 0);
+      lastDay.setHours(0, 0, 0, 0);
       
       // Get the day of week for the first day (0 = Sunday, 1 = Monday, etc)
       let firstDayOfWeek = firstDay.getDay();
@@ -124,20 +122,23 @@ export default function HabitStats({ habit, view, onToggle }) {
       // Add days from previous month to fill the calendar
       for (let i = 0; i < firstDayOfWeek; i++) {
         const prevDate = new Date(year, month, -i);
-        dates.unshift(normalizeDate(prevDate));
+        prevDate.setHours(0, 0, 0, 0);
+        dates.unshift(prevDate);
       }
       
       // Add all days from current month
       for (let i = 1; i <= lastDay.getDate(); i++) {
         const date = new Date(year, month, i);
-        dates.push(normalizeDate(date));
+        date.setHours(0, 0, 0, 0);
+        dates.push(date);
       }
       
       // Add days from next month to complete the grid (to make rows of 7)
       const remainingDays = (7 - dates.length % 7) % 7;
       for (let i = 1; i <= remainingDays; i++) {
         const nextDate = new Date(year, month + 1, i);
-        dates.push(normalizeDate(nextDate));
+        nextDate.setHours(0, 0, 0, 0);
+        dates.push(nextDate);
       }
     }
     else if (view === 'year') {
@@ -147,7 +148,8 @@ export default function HabitStats({ habit, view, onToggle }) {
       // Add all months of the year
       for (let i = 0; i < 12; i++) {
         const date = new Date(currentYear, i, 1);
-        dates.push(normalizeDate(date));
+        date.setHours(0, 0, 0, 0);
+        dates.push(date);
       }
     }
     
