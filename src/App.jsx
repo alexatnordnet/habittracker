@@ -3,19 +3,11 @@ import HabitForm from './components/HabitForm'
 import HabitItem from './components/HabitItem'
 import ViewSelector from './components/ViewSelector'
 import useLocalStorage from './hooks/useLocalStorage'
+import { getLocalDateString } from './utils/dateUtils'
 
 function App() {
   const [habits, setHabits] = useLocalStorage('habits', [])
   const [currentView, setCurrentView] = useLocalStorage('currentView', 'day')
-  
-  // Get local date string (YYYY-MM-DD) for consistent date representation
-  const getLocalDateString = (date) => {
-    const d = new Date(date);
-    const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  };
   
   // Add a new habit
   const addHabit = (name) => {
@@ -30,8 +22,13 @@ function App() {
   
   // Toggle completion status for a specific date
   const toggleHabit = (id, date = null) => {
-    // If date is provided directly use it, otherwise use today's date
-    const dateStr = date || getLocalDateString(new Date());
+    // Ensure consistent date string format
+    let dateStr;
+    if (date) {
+      dateStr = date; // Already a string from our components
+    } else {
+      dateStr = getLocalDateString(new Date());
+    }
     
     setHabits(habits.map(habit => {
       if (habit.id === id) {

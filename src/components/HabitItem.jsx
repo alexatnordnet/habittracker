@@ -2,7 +2,7 @@ import HabitStats from './HabitStats';
 
 export default function HabitItem({ habit, onToggle, onDelete, currentView }) {
   return (
-    <div className="p-4 pb-2 border rounded mb-2 relative">
+    <div className="p-3 pb-3 border rounded mb-3 relative">
       <div className="absolute -top-2.5 left-2">
         <span className="bg-white px-2 text-sm font-medium text-gray-700">
           {habit.name}
