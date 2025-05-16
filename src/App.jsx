@@ -1,24 +1,12 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import HabitForm from './components/HabitForm'
 import HabitItem from './components/HabitItem'
 import ViewSelector from './components/ViewSelector'
+import useLocalStorage from './hooks/useLocalStorage'
 
 function App() {
-  const [habits, setHabits] = useState([])
+  const [habits, setHabits] = useLocalStorage('habits', [])
   const [currentView, setCurrentView] = useState('week')
-  
-  // Load habits from localStorage on initial render
-  useEffect(() => {
-    const storedHabits = localStorage.getItem('habits')
-    if (storedHabits) {
-      setHabits(JSON.parse(storedHabits))
-    }
-  }, [])
-  
-  // Save habits to localStorage whenever they change
-  useEffect(() => {
-    localStorage.setItem('habits', JSON.stringify(habits))
-  }, [habits])
   
   // Add a new habit
   const addHabit = (name) => {
