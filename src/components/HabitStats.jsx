@@ -193,8 +193,8 @@ export default function HabitStats({ habit, view, onToggle }) {
   // Format date for display based on view
   const formatDisplayDate = (date, view) => {
     if (view === 'week') {
-      // For week view, show both day name and date
-      return `${date.toLocaleDateString('en-US', { weekday: 'short' })} ${date.getDate()}`;
+      // For week view, just return the date for consistency
+      return date.getDate().toString();
     }
     
     if (view === 'month') {
@@ -264,6 +264,7 @@ export default function HabitStats({ habit, view, onToggle }) {
               className={`
                 flex items-center justify-center
                 rounded text-center transition-colors 
+                ${view === 'week' ? 'h-20 w-11' : ''}
                 ${stat.completed ? 'bg-green-500 text-white' : 
                   (view === 'month' && !stat.isCurrentMonth) ? 'bg-gray-200 text-gray-400' : 
                   (view === 'year' && stat.isFutureMonth) ? 'bg-gray-200 text-gray-400' : 
@@ -273,7 +274,14 @@ export default function HabitStats({ habit, view, onToggle }) {
                 ${stat.isToday ? 'ring-1 ring-gray-400' : ''}
               `}
             >
-              <span className="text-xs font-medium block">{stat.displayDate}</span>
+              {view === 'week' ? (
+                <div className="flex flex-col items-center">
+                  <div className="text-xs mb-1">{new Date(stat.date).toLocaleDateString('en-US', { weekday: 'short' })}</div>
+                  <div className="font-bold text-base">{stat.displayDate}</div>
+                </div>
+              ) : (
+                <span className="text-xs font-medium block">{stat.displayDate}</span>
+              )}
             </button>
           )
         ))}
