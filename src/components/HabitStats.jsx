@@ -7,6 +7,19 @@ export default function HabitStats({ habit, view, onToggle }) {
     setStats(generateStats(habit, view));
   }, [habit, view]);
   
+  // Normalize date to midnight in local timezone
+  const normalizeDate = (date) => {
+    const normalized = new Date(date);
+    normalized.setHours(0, 0, 0, 0);
+    return normalized;
+  };
+  
+  // Get ISO date string (YYYY-MM-DD) for consistent date representation
+  const getISODateString = (date) => {
+    const normalized = normalizeDate(date);
+    return normalized.toISOString().split('T')[0];
+  };
+  
   // Get dates for the current view
   const generateStats = (habit, view) => {
     const dates = getDatesForView(view);
@@ -16,19 +29,32 @@ export default function HabitStats({ habit, view, onToggle }) {
         return { isEmpty: true };
       }
       
-      const dateStr = date.toISOString().split('T')[0];
+      // Create consistent date string format for all views
+      const normalizedDate = normalizeDate(date);
+      const dateStr = getISODateString(normalizedDate);
+      
       const completed = view === 'year' 
-        ? isMonthCompleted(habit, date.getFullYear(), date.getMonth())
+        ? isMonthCompleted(habit, normalizedDate.getFullYear(), normalizedDate.getMonth())
         : habit.completions?.[dateStr] || false;
       
       return {
         date: dateStr,
-        displayDate: formatDisplayDate(date, view),
+        displayDate: formatDisplayDate(normalizedDate, view),
         completed,
-        isCurrentMonth: isCurrentMonth(date),
-        isFutureMonth: isFutureMonth(date)
+        isCurrentMonth: isCurrentMonth(normalizedDate),
+        isFutureMonth: isFutureMonth(normalizedDate),
+        isToday: isToday(normalizedDate)
       };
     });
+  };
+  
+  // Check if date is today
+  const isToday = (date) => {
+    if (!date) return false;
+    const today = new Date();
+    return date.getDate() === today.getDate() && 
+           date.getMonth() === today.getMonth() && 
+           date.getFullYear() === today.getFullYear();
   };
   
   // Check if all days in a month are completed
@@ -38,8 +64,9 @@ export default function HabitStats({ habit, view, onToggle }) {
     
     // Check if all days in the month are completed
     for (let day = 1; day <= lastDay; day++) {
-      const date = new Date(year, month, day).toISOString().split('T')[0];
-      if (!habit.completions?.[date]) {
+      const date = new Date(year, month, day);
+      const dateStr = getISODateString(date);
+      if (!habit.completions?.[dateStr]) {
         return false;
       }
     }
@@ -49,19 +76,18 @@ export default function HabitStats({ habit, view, onToggle }) {
   
   // Generate array of dates based on the current view
   const getDatesForView = (view) => {
-    const today = new Date();
+    const today = normalizeDate(new Date());
     const dates = [];
     
     if (view === 'week') {
       // Get days from Monday to Sunday
-      const today = new Date();
       const currentDay = today.getDay(); // 0 is Sunday, 1 is Monday, etc.
       const daysFromMonday = currentDay === 0 ? 6 : currentDay - 1; // Calculate days to subtract to get to Monday
       
       for (let i = 0; i < 7; i++) { // 7 days in a week
-        const date = new Date();
+        const date = new Date(today);
         date.setDate(today.getDate() - daysFromMonday + i);
-        dates.push(date);
+        dates.push(normalizeDate(date));
       }
       
       // Add placeholder dates for week view to center the row
@@ -82,14 +108,13 @@ export default function HabitStats({ habit, view, onToggle }) {
     }
     else if (view === 'month') {
       // Get all days in current month in a calendar layout
-      const currentDate = new Date();
-      const year = currentDate.getFullYear();
-      const month = currentDate.getMonth();
+      const year = today.getFullYear();
+      const month = today.getMonth();
       
       // First day of current month
-      const firstDay = new Date(year, month, 1);
+      const firstDay = normalizeDate(new Date(year, month, 1));
       // Last day of current month
-      const lastDay = new Date(year, month + 1, 0);
+      const lastDay = normalizeDate(new Date(year, month + 1, 0));
       
       // Get the day of week for the first day (0 = Sunday, 1 = Monday, etc)
       let firstDayOfWeek = firstDay.getDay();
@@ -98,33 +123,31 @@ export default function HabitStats({ habit, view, onToggle }) {
       
       // Add days from previous month to fill the calendar
       for (let i = 0; i < firstDayOfWeek; i++) {
-        const prevMonthDate = new Date(year, month, -i);
-        dates.unshift(prevMonthDate);
+        const prevDate = new Date(year, month, -i);
+        dates.unshift(normalizeDate(prevDate));
       }
       
       // Add all days from current month
       for (let i = 1; i <= lastDay.getDate(); i++) {
         const date = new Date(year, month, i);
-        dates.push(date);
+        dates.push(normalizeDate(date));
       }
       
       // Add days from next month to complete the grid (to make rows of 7)
       const remainingDays = (7 - dates.length % 7) % 7;
       for (let i = 1; i <= remainingDays; i++) {
-        const nextMonthDate = new Date(year, month + 1, i);
-        dates.push(nextMonthDate);
+        const nextDate = new Date(year, month + 1, i);
+        dates.push(normalizeDate(nextDate));
       }
     }
     else if (view === 'year') {
       // Get all 12 months of the current year
-      const currentDate = new Date();
-      const currentYear = currentDate.getFullYear();
-      const currentMonth = currentDate.getMonth();
+      const currentYear = today.getFullYear();
       
       // Add all months of the year
       for (let i = 0; i < 12; i++) {
         const date = new Date(currentYear, i, 1);
-        dates.push(date);
+        dates.push(normalizeDate(date));
       }
     }
     
@@ -236,6 +259,7 @@ export default function HabitStats({ habit, view, onToggle }) {
                   (view === 'year' && stat.isFutureMonth) ? 'bg-gray-200 text-gray-400' : 
                   'border border-dotted hover:bg-gray-100'}
                 ${view === 'year' ? 'cursor-default' : ''}
+                ${stat.isToday ? 'ring-1 ring-gray-400' : ''}
               `}
             >
               <span className="text-xs font-medium block">{stat.displayDate}</span>
