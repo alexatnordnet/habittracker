@@ -16,6 +16,13 @@ export default function HabitStats({ habit, view, onToggle }) {
     return `${year}-${month}-${day}`;
   };
   
+  // Check if date is in the future
+  const isFutureDate = (date) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return date > today;
+  };
+  
   // Get dates for the current view
   const generateStats = (habit, view) => {
     const dates = getDatesForView(view);
@@ -38,7 +45,8 @@ export default function HabitStats({ habit, view, onToggle }) {
         completed,
         isCurrentMonth: isCurrentMonth(date),
         isFutureMonth: isFutureMonth(date),
-        isToday: isToday(date)
+        isToday: isToday(date),
+        isFutureDate: isFutureDate(date)
       };
     });
   };
@@ -247,18 +255,19 @@ export default function HabitStats({ habit, view, onToggle }) {
             <button 
               key={index} 
               onClick={() => {
-                // Only toggle if not year view
-                if (view !== 'year') {
+                // Only toggle if not year view and not a future date
+                if (view !== 'year' && !stat.isFutureDate) {
                   onToggle(habit.id, stat.date);
                 }
               }}
-              disabled={view === 'year' || (view === 'month' && !stat.isCurrentMonth)}
+              disabled={view === 'year' || (view === 'month' && !stat.isCurrentMonth) || stat.isFutureDate}
               className={`
                 flex items-center justify-center
                 rounded text-center transition-colors 
                 ${stat.completed ? 'bg-green-500 text-white' : 
                   (view === 'month' && !stat.isCurrentMonth) ? 'bg-gray-200 text-gray-400' : 
                   (view === 'year' && stat.isFutureMonth) ? 'bg-gray-200 text-gray-400' : 
+                  stat.isFutureDate ? 'bg-gray-100 text-gray-300 cursor-not-allowed' :
                   'border border-dotted hover:bg-gray-100'}
                 ${view === 'year' ? 'cursor-default' : ''}
                 ${stat.isToday ? 'ring-1 ring-gray-400' : ''}
