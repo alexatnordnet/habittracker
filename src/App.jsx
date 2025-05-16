@@ -41,14 +41,12 @@ function App() {
   return (
     <div className="min-h-screen bg-gray-100 p-4">
       <div className="max-w-md mx-auto bg-white rounded-lg shadow p-6">
-        <h1 className="text-2xl font-bold mb-4">Habit Tracker</h1>
-        
         {/* Habits list at the top */}
         <div className="mb-4">
           {habits.length === 0 ? (
             <p className="text-gray-600 text-center py-4">No habits yet. Add one below!</p>
           ) : (
-            <div className="border rounded divide-y mb-4">
+            <div className="mb-2">
               {habits.map(habit => (
                 <HabitItem 
                   key={habit.id}
@@ -60,13 +58,15 @@ function App() {
               ))}
             </div>
           )}
-          
-          {/* Add habit form */}
-          <HabitForm onAddHabit={addHabit} />
         </div>
         
-        {/* View selector below habits */}
+        {/* View selector */}
         <ViewSelector currentView={currentView} onViewChange={setCurrentView} />
+        
+        {/* Add habit form */}
+        <div className="mt-4">
+          <HabitForm onAddHabit={addHabit} />
+        </div>
       </div>
     </div>
   )

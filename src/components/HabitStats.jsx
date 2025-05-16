@@ -12,6 +12,10 @@ export default function HabitStats({ habit, view, onToggle }) {
     const dates = getDatesForView(view);
     
     return dates.map(date => {
+      if (date === null) {
+        return { isEmpty: true };
+      }
+      
       const dateStr = date.toISOString().split('T')[0];
       const completed = view === 'year' 
         ? isMonthCompleted(habit, date.getFullYear(), date.getMonth())
@@ -58,6 +62,22 @@ export default function HabitStats({ habit, view, onToggle }) {
         const date = new Date();
         date.setDate(today.getDate() - daysFromMonday + i);
         dates.push(date);
+      }
+      
+      // Add placeholder dates for week view to center the row
+      // We want the week view to be in the center rows of the 6-row grid
+      const rowToPlace = 2; // Third row (0-indexed)
+      const emptyBefore = rowToPlace * 7; // Number of empty slots before
+      const emptyAfter = (5 - rowToPlace) * 7; // Number of empty slots after
+      
+      // Add empty slots before
+      for (let i = 0; i < emptyBefore; i++) {
+        dates.unshift(null);
+      }
+      
+      // Add empty slots after
+      for (let i = 0; i < emptyAfter; i++) {
+        dates.push(null);
       }
     }
     else if (view === 'month') {
@@ -161,56 +181,66 @@ export default function HabitStats({ habit, view, onToggle }) {
   return (
     <div className="mt-2">
       {/* Title for month/year view */}
-      {view === 'month' && (
-        <div className="mb-2 text-center font-medium">
-          {getCurrentMonthYear()}
-        </div>
-      )}
-      
-      {view === 'year' && (
-        <div className="mb-2 text-center font-medium">
-          {getCurrentYear()}
-        </div>
-      )}
+      <div className="h-8">
+        {view === 'month' && (
+          <div className="text-center font-medium">
+            {getCurrentMonthYear()}
+          </div>
+        )}
+        
+        {view === 'year' && (
+          <div className="text-center font-medium">
+            {getCurrentYear()}
+          </div>
+        )}
+      </div>
       
       {/* Week day headers for month view */}
-      {view === 'month' && (
-        <div className="grid grid-cols-7 gap-1 mb-1">
-          {weekDays.map(day => (
-            <div key={day} className="text-xs text-center font-medium text-gray-500">
-              {day}
-            </div>
-          ))}
-        </div>
-      )}
+      <div className="h-6">
+        {view === 'month' && (
+          <div className="grid grid-cols-7 gap-1">
+            {weekDays.map(day => (
+              <div key={day} className="text-xs text-center font-medium text-gray-500">
+                {day}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
       
       <div 
-        className="grid gap-1" 
+        className="grid gap-1 h-[180px]" 
         style={{
-          gridTemplateColumns: `repeat(${view === 'week' ? 7 : view === 'month' ? 7 : 4}, 1fr)`
+          gridTemplateColumns: `repeat(${view === 'week' ? 7 : view === 'month' ? 7 : 4}, 1fr)`,
+          gridTemplateRows: view === 'year' ? 'repeat(3, 1fr)' : 'repeat(6, 1fr)'
         }}
       >
         {stats.map((stat, index) => (
-          <button 
-            key={index} 
-            onClick={() => {
-              // Only toggle if not year view
-              if (view !== 'year') {
-                onToggle(habit.id, stat.date);
-              }
-            }}
-            disabled={view === 'year' || (view === 'month' && !stat.isCurrentMonth)}
-            className={`
-              p-2 rounded text-center transition-colors 
-              ${stat.completed ? 'bg-green-500 text-white' : 
-                (view === 'month' && !stat.isCurrentMonth) ? 'bg-gray-200 text-gray-400' : 
-                (view === 'year' && stat.isFutureMonth) ? 'bg-gray-200 text-gray-400' : 
-                view === 'year' ? 'bg-gray-100' : 'bg-gray-100 hover:bg-gray-200'}
-              ${view === 'year' ? 'cursor-default' : ''}
-            `}
-          >
-            <span className="text-xs font-medium block">{stat.displayDate}</span>
-          </button>
+          stat.isEmpty ? (
+            <div key={index} className="empty-cell"></div>
+          ) : (
+            <button 
+              key={index} 
+              onClick={() => {
+                // Only toggle if not year view
+                if (view !== 'year') {
+                  onToggle(habit.id, stat.date);
+                }
+              }}
+              disabled={view === 'year' || (view === 'month' && !stat.isCurrentMonth)}
+              className={`
+                flex items-center justify-center
+                rounded text-center transition-colors 
+                ${stat.completed ? 'bg-green-500 text-white' : 
+                  (view === 'month' && !stat.isCurrentMonth) ? 'bg-gray-200 text-gray-400' : 
+                  (view === 'year' && stat.isFutureMonth) ? 'bg-gray-200 text-gray-400' : 
+                  'border border-dotted hover:bg-gray-100'}
+                ${view === 'year' ? 'cursor-default' : ''}
+              `}
+            >
+              <span className="text-xs font-medium block">{stat.displayDate}</span>
+            </button>
+          )
         ))}
       </div>
     </div>
