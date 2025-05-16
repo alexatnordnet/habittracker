@@ -1,5 +1,5 @@
 export default function ViewSelector({ currentView, onViewChange }) {
-  const views = ['week', 'month', 'year'];
+  const views = ['day', 'week', 'month', 'year'];
   
   return (
     <div className="flex rounded-lg overflow-hidden p-1">

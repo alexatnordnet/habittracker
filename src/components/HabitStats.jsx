@@ -83,7 +83,12 @@ export default function HabitStats({ habit, view, onToggle }) {
     today.setHours(0, 0, 0, 0);
     const dates = [];
     
-    if (view === 'week') {
+    if (view === 'day') {
+      // Only show today
+      const date = new Date(today);
+      dates.push(date);
+    }
+    else if (view === 'week') {
       // Get days from Monday to Sunday
       const currentDay = today.getDay(); // 0 is Sunday, 1 is Monday, etc.
       const daysFromMonday = currentDay === 0 ? 6 : currentDay - 1; // Calculate days to subtract to get to Monday
@@ -192,8 +197,8 @@ export default function HabitStats({ habit, view, onToggle }) {
   
   // Format date for display based on view
   const formatDisplayDate = (date, view) => {
-    if (view === 'week') {
-      // For week view, just return the date for consistency
+    if (view === 'day' || view === 'week') {
+      // For day/week view, just return the date for consistency
       return date.getDate().toString();
     }
     
@@ -244,7 +249,7 @@ export default function HabitStats({ habit, view, onToggle }) {
       <div 
         className="grid gap-1 h-[180px]" 
         style={{
-          gridTemplateColumns: `repeat(${view === 'week' ? 7 : view === 'month' ? 7 : 4}, 1fr)`,
+          gridTemplateColumns: `repeat(${view === 'day' ? 1 : view === 'week' ? 7 : view === 'month' ? 7 : 4}, 1fr)`,
           gridTemplateRows: view === 'year' ? 'repeat(3, 1fr)' : 'repeat(6, 1fr)'
         }}
       >
@@ -264,7 +269,7 @@ export default function HabitStats({ habit, view, onToggle }) {
               className={`
                 flex items-center justify-center
                 rounded text-center transition-colors 
-                ${view === 'week' ? 'h-20 w-11' : ''}
+                ${view === 'day' ? 'h-36 w-36 mx-auto text-lg' : view === 'week' ? 'h-20 w-11' : ''}
                 ${stat.completed ? 'bg-green-500 text-white' : 
                   (view === 'month' && !stat.isCurrentMonth) ? 'bg-gray-200 text-gray-400' : 
                   (view === 'year' && stat.isFutureMonth) ? 'bg-gray-200 text-gray-400' : 
@@ -274,7 +279,13 @@ export default function HabitStats({ habit, view, onToggle }) {
                 ${stat.isToday ? 'ring-1 ring-gray-400' : ''}
               `}
             >
-              {view === 'week' ? (
+              {view === 'day' ? (
+                <div className="flex flex-col items-center">
+                  <div className="text-sm mb-2">Today</div>
+                  <div className="font-bold text-3xl mb-3">{stat.displayDate}</div>
+                  <div className="text-xs">{new Date(stat.date).toLocaleDateString('en-US', {weekday: 'long'})}</div>
+                </div>
+              ) : view === 'week' ? (
                 <div className="flex flex-col items-center">
                   <div className="text-xs mb-1">{new Date(stat.date).toLocaleDateString('en-US', { weekday: 'short' })}</div>
                   <div className="font-bold text-base">{stat.displayDate}</div>

@@ -6,7 +6,7 @@ import useLocalStorage from './hooks/useLocalStorage'
 
 function App() {
   const [habits, setHabits] = useLocalStorage('habits', [])
-  const [currentView, setCurrentView] = useState('week')
+  const [currentView, setCurrentView] = useLocalStorage('currentView', 'day')
   
   // Get local date string (YYYY-MM-DD) for consistent date representation
   const getLocalDateString = (date) => {
