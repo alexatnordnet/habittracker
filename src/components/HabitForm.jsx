@@ -13,7 +13,7 @@ export default function HabitForm({ onAddHabit }) {
 
   return (
     <form onSubmit={handleSubmit} className="mb-4">
-      <div className="flex gap-2">
+      <div className="w-full flex gap-4">
         <input
           type="text"
           value={habitName}
@@ -23,7 +23,7 @@ export default function HabitForm({ onAddHabit }) {
         />
         <button 
           type="submit"
-          className="px-4 py-2 border-2 border-dotted border-gray-800 rounded hover:bg-gray-100 transition-colors"
+          className="w-24 py-2 px-4 rounded transition-colors text-center border-2 border-dotted border-gray-800 hover:bg-gray-100"
         >
           Add
         </button>
