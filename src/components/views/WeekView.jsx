@@ -9,7 +9,7 @@ export default function WeekView({ habit, dates, onToggle }) {
         
         const dateString = getLocalDateString(date);
         const isCompleted = habit.completions?.[dateString] || false;
-        const isFutureDate = date > new Date();
+        const isFutureDate = date > new Date(); // Check against actual current date
         
         return (
           <button 

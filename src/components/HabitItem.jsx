@@ -1,6 +1,6 @@
 import HabitStats from './HabitStats';
 
-export default function HabitItem({ habit, onToggle, onDelete, currentView }) {
+export default function HabitItem({ habit, onToggle, onDelete, currentView, timeOffset }) {
   return (
     <div className="p-3 pb-3 border rounded mb-3 relative">
       <div className="absolute -top-2.5 left-2">
@@ -17,7 +17,7 @@ export default function HabitItem({ habit, onToggle, onDelete, currentView }) {
       </button>
       
       {/* Calendar-style stats */}
-      <HabitStats habit={habit} view={currentView} onToggle={onToggle} />
+      <HabitStats habit={habit} view={currentView} onToggle={onToggle} timeOffset={timeOffset} />
     </div>
   );
 }

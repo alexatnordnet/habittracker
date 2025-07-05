@@ -105,21 +105,26 @@ export const getCurrentYear = () => {
 
 /**
  * Generate dates for the day view (just today)
- * @returns {Date[]} Array with today's date
+ * @param {number} timeOffset - Number of days to offset
+ * @returns {Date[]} Array with the target date
  */
-export const getDatesForDayView = () => {
+export const getDatesForDayView = (timeOffset = 0) => {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
+  today.setDate(today.getDate() + timeOffset);
   return [today];
 };
 
 /**
  * Generate dates for the week view (Monday to Sunday)
+ * @param {number} timeOffset - Number of weeks to offset
  * @returns {Date[]} Array of dates for the week
  */
-export const getDatesForWeekView = () => {
+export const getDatesForWeekView = (timeOffset = 0) => {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
+  // Offset by weeks
+  today.setDate(today.getDate() + (timeOffset * 7));
   const dates = [];
 
   // Get days from Monday to Sunday
@@ -137,15 +142,16 @@ export const getDatesForWeekView = () => {
 
 /**
  * Generate dates for the month view (calendar grid)
+ * @param {number} timeOffset - Number of months to offset
  * @returns {Date[]} Array of dates for the month
  */
-export const getDatesForMonthView = () => {
+export const getDatesForMonthView = (timeOffset = 0) => {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const dates = [];
   
   const year = today.getFullYear();
-  const month = today.getMonth();
+  const month = today.getMonth() + timeOffset;
   
   // First day of current month
   const firstDay = new Date(year, month, 1);
@@ -186,14 +192,15 @@ export const getDatesForMonthView = () => {
 
 /**
  * Generate dates for the year view (12 months)
+ * @param {number} timeOffset - Number of years to offset
  * @returns {Date[]} Array of dates for the year
  */
-export const getDatesForYearView = () => {
+export const getDatesForYearView = (timeOffset = 0) => {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const dates = [];
   
-  const currentYear = today.getFullYear();
+  const currentYear = today.getFullYear() + timeOffset;
   
   // Add all months of the year
   for (let i = 0; i < 12; i++) {
@@ -208,19 +215,21 @@ export const getDatesForYearView = () => {
 /**
  * Get dates for a particular view
  * @param {string} view - The current view (day, week, month, year)
+ * @param {number} timeOffset - Number of periods to offset (0 = current, -1 = previous, etc.)
  * @returns {Date[]} Array of dates for the view
  */
-export const getDatesForView = (view) => {
+export const getDatesForView = (view, timeOffset = 0) => {
   switch (view) {
     case 'day':
-      return getDatesForDayView();
+      return getDatesForDayView(timeOffset);
     case 'week':
-      return getDatesForWeekView();
+      return getDatesForWeekView(timeOffset);
     case 'month':
-      return getDatesForMonthView();
+      return getDatesForMonthView(timeOffset);
     case 'year':
-      return getDatesForYearView();
+      return getDatesForYearView(timeOffset);
     default:
-      return getDatesForDayView();
+      return getDatesForDayView(timeOffset);
   }
 };
+

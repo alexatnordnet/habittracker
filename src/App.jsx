@@ -2,12 +2,15 @@ import { useState } from 'react'
 import HabitForm from './components/HabitForm'
 import HabitItem from './components/HabitItem'
 import ViewSelector from './components/ViewSelector'
+import TimeNavigation from './components/TimeNavigation'
+import PeriodHeader from './components/PeriodHeader'
 import useLocalStorage from './hooks/useLocalStorage'
 import { getLocalDateString } from './utils/dateUtils'
 
 function App() {
   const [habits, setHabits] = useLocalStorage('habits', [])
   const [currentView, setCurrentView] = useLocalStorage('currentView', 'day')
+  const [timeOffset, setTimeOffset] = useState(0) // 0 = current period, -1 = previous, etc.
   
   // Export habits data to CSV
   const exportToCSV = () => {
@@ -74,10 +77,29 @@ function App() {
     setHabits(habits.filter(habit => habit.id !== id))
   }
   
+  // Navigate time periods
+  const navigateTime = (direction) => {
+    setTimeOffset(prev => prev + direction)
+  }
+  
+  // Reset to current time
+  const resetToToday = () => {
+    setTimeOffset(0)
+  }
+  
+  // Reset time offset when view changes
+  const handleViewChange = (newView) => {
+    setCurrentView(newView)
+    setTimeOffset(0) // Reset to current period when switching views
+  }
+  
   return (
     <div className="min-h-screen bg-gray-100 p-4">
       <div className="max-w-md mx-auto bg-white rounded-lg shadow p-6">
-        {/* Habits list at the top */}
+        {/* Period header */}
+        <PeriodHeader currentView={currentView} timeOffset={timeOffset} />
+        
+        {/* Habits list */}
         <div className="mb-4">          
           {habits.length === 0 ? (
             <p className="text-gray-600 text-center py-4">No habits yet. Add one below!</p>
@@ -90,14 +112,22 @@ function App() {
                   onToggle={toggleHabit}
                   onDelete={deleteHabit}
                   currentView={currentView}
+                  timeOffset={timeOffset}
                 />
               ))}
             </div>
           )}
         </div>
         
+        {/* Time navigation */}
+        <TimeNavigation 
+          timeOffset={timeOffset}
+          onNavigate={navigateTime}
+          onResetToToday={resetToToday}
+        />
+        
         {/* View selector */}
-        <ViewSelector currentView={currentView} onViewChange={setCurrentView} />
+        <ViewSelector currentView={currentView} onViewChange={handleViewChange} />
         
         {/* Add habit form */}
         <div className="mt-4">

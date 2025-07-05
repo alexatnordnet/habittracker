@@ -5,9 +5,9 @@ import WeekView from './views/WeekView';
 import MonthView from './views/MonthView';
 import YearView from './views/YearView';
 
-export default function HabitStats({ habit, view, onToggle }) {
-  // Get dates for the current view
-  const dates = getDatesForView(view);
+export default function HabitStats({ habit, view, onToggle, timeOffset = 0 }) {
+  // Get dates for the current view with time offset
+  const dates = getDatesForView(view, timeOffset);
   
   // Add placeholder dates for week view to center it
   let displayDates = dates;

@@ -2,17 +2,10 @@ import React from 'react';
 import { isFutureMonth, getLocalDateString } from '../../utils/dateUtils';
 
 export default function YearView({ habit, dates, onToggle }) {
-  // Current year title
-  const currentYear = new Date().getFullYear().toString();
-
   return (
     <div className="h-full flex flex-col">
-      <div className="text-center font-medium mb-1">
-        {currentYear}
-      </div>
-      
       {/* Year grid */}
-      <div className="grid grid-cols-4 grid-rows-3 gap-1 h-[150px] flex-grow">
+      <div className="grid grid-cols-4 grid-rows-3 gap-1 h-[180px] flex-grow">
         {dates.map((date, index) => {
           if (!date) return <div key={index} className="empty-cell"></div>;
           
@@ -20,7 +13,7 @@ export default function YearView({ habit, dates, onToggle }) {
           const year = date.getFullYear();
           const month = date.getMonth();
           const isCompleted = isMonthCompleted(habit, year, month);
-          const isFuture = isFutureMonth(date);
+          const isFuture = isFutureMonth(date); // This correctly checks against actual current date
           
           return (
             <button 
